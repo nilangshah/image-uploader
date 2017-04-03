@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Image Uploader</title>
+
+<!-- Bootstrap Core CSS -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="css/landing-page.css" rel="stylesheet">
+
+<!-- Custom Fonts -->
+<link href="font-awesome/css/font-awesome.min.css" rel="stylesheet"
+	type="text/css">
+<link
+	href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic"
+	rel="stylesheet" type="text/css">
+<script src="js/angular/angular.min.js"></script>
+<script src="js/angular/angular-route.js"></script>
+</head>
+
+<body ng-app="upload">
+	<div class="intro-header">
+		<div class="container" ng-controller="uploadControl">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="intro-message">
+						<h1>Image Uploader</h1>
+						<h3>A utility to upload, resize and display images</h3>
+						<hr class="intro-divider">
+						<ul class="list-inline">
+							<li><div file-upload></div></li>
+						</ul>
+						<ul class="list-inline intro-social-buttons">
+							<li><a ng-click="uploadFile()"
+								class="btn btn-default btn-lg"><i class="fa fa-cloud-upload"></i>
+									<span class="network-name">Upload</span></a></li>
+							<li><a href="#display" class="btn btn-default btn-lg"><i
+									class="fa fa-picture-o"></i> <span class="network-name">Display
+										Images</span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<div id="display" class="content-section-b"
+		style="background-color: lightgray;" ng-controller="displaycontrol">
+		<div class="container">
+			<h2 style="color: #203F53">Resized Images</h2>
+			<ul class="pager">
+				<li><button ng-click="start()" name="Start"
+						class="upload-file-button" style="float: left;">Start</button></li>
+				<li><button ng-click="nextImages(token) " name="Next"
+						class="upload-file-button" style="float: right;">Next</button></li>
+			</ul>
+
+			<div class="row" ng-repeat="i in records track by $index"
+				ng-if="$index % 3 == 0">
+				<div class="col-lg-4 col-sm-6 col-xs-12"
+					ng-repeat="j in [$index, $index + 1, $index + 2]"
+					ng-if="records[j] != null">
+					<a href="#"> <img
+						src="https://nshah-rimages.s3.amazonaws.com/{{records[j]}}"
+						class="thumbnail img-responsive">
+					</a>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<script src="js/jquery.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/uploadImage.js"></script>
+	<script src="js/bootbox.min.js"></script>
+</body>
+
+</html>
