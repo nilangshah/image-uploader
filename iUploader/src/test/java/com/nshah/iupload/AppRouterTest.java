@@ -135,8 +135,7 @@ public class AppRouterTest {
 	    buffer.appendBytes(Files.readAllBytes(Paths.get(filename)));
 	    buffer.appendString("\r\n");
 	} catch (IOException e) {
-	    e.printStackTrace();
-
+	    LOGGER.error("Failed to read file " + e);
 	}
 	buffer.appendString("--MyBoundary--\r\n");
 	return buffer;
@@ -177,14 +176,12 @@ public class AppRouterTest {
 	    buffer.appendBytes(Files.readAllBytes(Paths.get(filename)));
 	    buffer.appendString("\r\n");
 	} catch (IOException e) {
-	    e.printStackTrace();
-
+	    LOGGER.error("Failed to read file " + e);
 	}
 	buffer.appendString("--MyBoundary--\r\n");
 	return buffer;
     }
 
-    
     private Handler<Message<JsonObject>> getImagesHandler() {
 	return msg -> {
 	    msg.reply(Json.encodePrettily(result));
@@ -202,7 +199,7 @@ public class AppRouterTest {
 	    msg.reply(Json.encodePrettily("Image Uploaded Successfully"));
 	};
     }
-    
+
     private Handler<Message<JsonObject>> addFailImagesHandler() {
 	return msg -> {
 	    msg.fail(HttpResponseStatus.BAD_REQUEST.code(), Json.encodePrettily("Txt format not supported"));
