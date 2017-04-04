@@ -75,7 +75,7 @@ public class ImageApi extends AbstractVerticle {
 	    } catch (Exception e) {
 		String err = "Failed to add image";
 		LOGGER.error(err, e);
-		msg.fail(HttpResponseStatus.NOT_FOUND.code(), Json.encodePrettily(err));
+		msg.fail(HttpResponseStatus.INTERNAL_SERVER_ERROR.code(), Json.encodePrettily(err));
 	    }
 	};
     }

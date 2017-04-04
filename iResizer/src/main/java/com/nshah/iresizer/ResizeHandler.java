@@ -17,7 +17,6 @@ import org.imgscalr.Scalr.Mode;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -38,32 +37,31 @@ public class ResizeHandler implements RequestHandler<S3Event, Object> {
     private static final String SRC_BUCKET_NAME = "nshah-images";
     private static final String DEST_BUCKET_NAME = "nshah-rimages";
     BasicAWSCredentials awsCreds = new BasicAWSCredentials("XXXXXXXXXXXX", "XXXXXXXXXXXXX");
-    
+
     /**
      * Resizes input image to 640x480 and upload it to S3 bucket
      */
     public String handleRequest(S3Event s3event, Context context) {
 	long startTime = System.currentTimeMillis();
 	for (S3EventNotificationRecord record : s3event.getRecords()) {
-	    String srcKey = record.getS3().getObject().getKey();
+	    String srcKey = getObjectKey(record);
 	    String name;
 	    try {
 		name = URLDecoder.decode(srcKey, "UTF-8");
-	    } catch (UnsupportedEncodingException e) {
-		context.getLogger().log("Failed to decode file name" + srcKey);
+	    } catch (IllegalArgumentException | UnsupportedEncodingException e) {
+		context.getLogger().log("Failed to decode file name" + srcKey + e.getMessage());
 		return "FAILED";
 	    }
 	    context.getLogger().log("Received image key: " + name);
-	    AmazonS3 s3Client = AmazonS3Client.builder().withRegion(Regions.AP_SOUTH_1)
-		    .withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
-	    s3Client.setRegion(Region.getRegion(Regions.AP_SOUTH_1));
-	    S3Object s3Object = s3Client.getObject(new GetObjectRequest(SRC_BUCKET_NAME, name));
 	    // Infer the image type.
 	    Matcher matcher = Pattern.compile(".*\\.([^\\.]*)").matcher(name);
 	    if (!matcher.matches()) {
 		context.getLogger().log("Failed to infer image type for file " + name);
 		return "FAILED";
 	    }
+	    AmazonS3 s3Client = getS3Client();
+	    S3Object s3Object = s3Client.getObject(new GetObjectRequest(SRC_BUCKET_NAME, name));
+
 	    String imageType = matcher.group(1);
 	    ObjectMetadata metadata = s3Object.getObjectMetadata();
 	    InputStream objectData = s3Object.getObjectContent();
@@ -79,6 +77,14 @@ public class ResizeHandler implements RequestHandler<S3Event, Object> {
 	    }
 	}
 	return "OK";
+    }
+
+    public String getObjectKey(S3EventNotificationRecord record) {
+	return record.getS3().getObject().getKey();
+    }
+
+    public AmazonS3 getS3Client() {
+	return AmazonS3Client.builder().withRegion(Regions.AP_SOUTH_1).withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
     }
 
     /**

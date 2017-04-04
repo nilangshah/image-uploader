@@ -25,19 +25,21 @@ public class AppRouter extends AbstractVerticle {
     private static Logger LOGGER = LoggerFactory.getLogger(AppRouter.class);
 
     public AppRouter() {
+
     }
 
     @Override
     public void start() throws Exception {
 	LOGGER.debug("Image upload service Init");
 	Router router = Router.router(vertx);
-	// We need cookies, sessions and request bodies
 	router.route().handler(CookieHandler.create());
 	router.route().handler(BodyHandler.create());
 
 	addImageApis(router);
 	router.route().handler(StaticHandler.create());
-	vertx.createHttpServer().requestHandler(router::accept).listen(8080);
+	int port = System.getProperty("server.port") != null ? Integer.parseInt(System.getProperty("server.port")) : 5000;
+	LOGGER.info("Starting server on " + port);
+	vertx.createHttpServer().requestHandler(router::accept).listen(port);
 	LOGGER.debug("AppRouter service init Completed");
     }
 
